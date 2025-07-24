@@ -50,7 +50,11 @@ class AppServiceProvider extends ServiceProvider
         });
         FilamentView::registerRenderHook(
             'panels::head.start',
-            fn(): string => '<link rel="manifest" href="/manifest.json">',
+            fn(): string => Blade::render(<<<'BLADE'
+                @laravelPWA
+                <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+                <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1f2937">
+            BLADE),
         );
     }
 }

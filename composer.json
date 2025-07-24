@@ -17,6 +17,7 @@
         "leandrocfe/filament-apex-charts": "^3.2",
         "saade/filament-fullcalendar": "^3.2",
         "shuvroroy/filament-spatie-laravel-health": "^2.3",
+        "silviolleite/laravelpwa": "^2.0",
         "thiagoalessio/tesseract_ocr": "^2.13"
     },
     "require-dev": {
