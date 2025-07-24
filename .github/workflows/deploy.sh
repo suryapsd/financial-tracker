@@ -3,9 +3,8 @@ set -e
 
 echo "Deployment started ..."
 
-# Enter maintenance mode or return true
-# if already is in maintenance mode
-(php artisan down) || true
+# Masuk ke maintenance mode
+(php artisan down --message="Sedang dalam proses deployment." --retry=60) || true
 
 # Pull kode terbaru dari repository
 git pull origin main
@@ -13,21 +12,18 @@ git pull origin main
 # Install/update Composer dependencies
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 
-# Jalankan migrasi database
-# php artisan migrate --force
-
-# Clear dan cache ulang
+# Optimasi cache
+php artisan clear-compiled
 php artisan cache:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Set izin yang sesuai untuk storage dan cache
-chmod -R 775 storage bootstrap/cache
+# Atur permission
 chown -R www-data:www-data storage bootstrap/cache
+chmod -R ug+rwx storage bootstrap/cache
 
-# Restart queue jika digunakan
-# php artisan queue:restart
+# Keluar dari maintenance mode
+php artisan up
 
-# Selesai
-echo "Deployment selesai!"
+echo "✅ Deployment selesai!"
