@@ -41,7 +41,7 @@ class CurrentSalaryResource extends Resource
                     ->columnSpan(2),
 
                 Select::make('account_id')
-                    ->options(Account::all()->pluck('name', 'id'))
+                    ->options(Account::where('user_id', Auth::id())->pluck('name', 'id'))
                     ->label('Account')
                     ->required()
                     ->placeholder('Select account'),
