@@ -93,7 +93,7 @@ class BudgetPlanResource extends Resource
                 Textarea::make('description')
                     ->label('Description')
                     ->placeholder('e.g. Saving up for a down payment on a home')
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
             ]);
     }
 

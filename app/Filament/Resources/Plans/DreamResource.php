@@ -39,7 +39,7 @@ class DreamResource extends Resource
                     ->label('Title')
                     ->placeholder('e.g. Buy a House')
                     ->required()
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
 
                 Select::make('category_id')
                     ->label('Category')
@@ -74,7 +74,7 @@ class DreamResource extends Resource
                     ->label('Description')
                     ->placeholder('e.g. Save for a dream house in Bali')
                     ->rows(3)
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
             ]);
     }
 

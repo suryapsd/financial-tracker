@@ -208,37 +208,36 @@ class ExpenseResource extends Resource
     {
         return Section::make('Upload Receipt & OCR Processing')
             ->description('Upload a receipt image to automatically extract expense data.')
+            ->columns(2)
             ->schema([
-                Grid::make(2)->schema([
-                    FileUpload::make('image_struk')
-                        ->label('Upload Receipt Image')
-                        ->disk('public')
-                        ->directory('uploads')
-                        ->image()
-                        ->imageEditor()
-                        ->downloadable()
-                        ->openable()
-                        ->columnSpan(2)
-                        ->afterStateUpdated(function ($state, $set) {
-                            if (!$state) return;
+                FileUpload::make('image_struk')
+                    ->label('Upload Receipt Image')
+                    ->disk('public')
+                    ->directory('uploads')
+                    ->image()
+                    ->imageEditor()
+                    ->downloadable()
+                    ->openable()
+                    ->columnSpanFull()
+                    ->afterStateUpdated(function ($state, $set) {
+                        if (!$state) return;
 
-                            $filename = uniqid() . '.' . strtolower($state->getClientOriginalExtension());
-                            $storedPath = $state->storeAs('uploads', $filename, 'public');
-                            $absolutePath = storage_path('app/public/' . $storedPath);
+                        $filename = uniqid() . '.' . strtolower($state->getClientOriginalExtension());
+                        $storedPath = $state->storeAs('uploads', $filename, 'public');
+                        $absolutePath = storage_path('app/public/' . $storedPath);
 
-                            self::processOcrAndAutofill($absolutePath, $set);
-                        }),
+                        self::processOcrAndAutofill($absolutePath, $set);
+                    }),
 
-                    Textarea::make('raw_text')
-                        ->label('Raw OCR Text')
-                        ->readOnly()
-                        ->rows(5),
+                Textarea::make('raw_text')
+                    ->label('Raw OCR Text')
+                    ->readOnly()
+                    ->rows(5),
 
-                    Textarea::make('parsed_json')
-                        ->label('Parsed JSON Output')
-                        ->readOnly()
-                        ->rows(5),
-                ]),
+                Textarea::make('parsed_json')
+                    ->label('Parsed JSON Output')
+                    ->readOnly()
+                    ->rows(5),
             ])
             ->footerActions([
                 Action::make('Manual OCR Process')

@@ -36,6 +36,9 @@ class FinanceChart extends ApexChartWidget
             'chart' => [
                 'type' => 'line',
                 'height' => 300,
+                'toolbar' => [
+                    'show' => false,
+                ],
             ],
             'series' => [
                 [
@@ -58,7 +61,7 @@ class FinanceChart extends ApexChartWidget
                     ],
                 ],
             ],
-            'colors' => ['#f59e0b'],
+            'colors' => ['#16a34a'],
             'stroke' => [
                 'curve' => 'smooth',
             ],

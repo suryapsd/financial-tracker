@@ -64,7 +64,7 @@ class SavingResource extends Resource
                     ->label('Description')
                     ->placeholder('Optional notes')
                     ->rows(3)
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
             ]);
     }
 

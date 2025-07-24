@@ -3,9 +3,12 @@
 namespace App\Providers;
 
 use Spatie\Health\Facades\Health;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Filament\Support\Facades\FilamentView;
 use Spatie\Health\Checks\Checks\PingCheck;
+use Filament\Support\Facades\FilamentAsset;
 use Spatie\Health\Checks\Checks\QueueCheck;
 use Spatie\Health\Checks\Checks\ScheduleCheck;
 use Spatie\Health\Checks\Checks\DebugModeCheck;
@@ -45,5 +48,9 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('money', function ($amount) {
             return "<?php echo 'IDR ' . number_format($amount, 0, ',', '.'); ?>";
         });
+        FilamentView::registerRenderHook(
+            'panels::head.start',
+            fn(): string => '<link rel="manifest" href="/manifest.json">',
+        );
     }
 }

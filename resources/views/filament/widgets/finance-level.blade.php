@@ -1,9 +1,9 @@
 <x-filament::widget>
   <x-filament::card class="space-y-4">
-    <div class="text-xl font-bold text-center">Level Kebebasan Finansial</div>
-    <p class="text-center"><small>Seberapa bebas hidup kamu tanpa ketegantungan pada gaji pekerjaan</small></p>
+    <div class="text-base font-semibold mt-2">Level Kebebasan Finansial</div>
+    <div class="text-lg text-gray-600 dark:text-gray-300"><small>Seberapa bebas hidup kamu tanpa ketegantungan pada gaji pekerjaan</small></div>
 
-    <div class="overflow-x-auto mt-3 mb-4 rounded-lg border">
+    <div class="overflow-x-auto mt-4 rounded-lg border">
       <table class="w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm rounded-lg overflow-hidden">
         <thead>
           <tr class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">

@@ -50,7 +50,7 @@ class AssetResource extends Resource
                     ->required()
                     ->label('Asset Name')
                     ->placeholder('Enter asset name')
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
 
                 TextInput::make('category')
                     ->required()

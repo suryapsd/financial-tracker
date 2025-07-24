@@ -37,7 +37,7 @@ class DebtResource extends Resource
                     ->required()
                     ->label('Creditor')
                     ->placeholder('e.g. Bank XYZ, Friend, etc.')
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
 
                 Select::make('category_id')
                     ->label('Category')

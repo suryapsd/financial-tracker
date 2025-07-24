@@ -54,7 +54,7 @@ class IncomeResource extends Resource
                     ->label('Income Source')
                     ->placeholder('e.g. Company Name, etc.')
                     ->maxLength(255)
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
 
                 TextInput::make('amount')
                     ->required()
@@ -70,7 +70,7 @@ class IncomeResource extends Resource
                     ->label('Received Date'),
 
                 Textarea::make('description')
-                    ->columnSpan(2)
+                    ->columnSpanFull()
                     ->maxLength(255),
             ]);
     }

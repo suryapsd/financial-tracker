@@ -66,7 +66,7 @@ class EmergencyFundResource extends Resource
                     ->label('Description')
                     ->placeholder('Optional notes or goals')
                     ->rows(3)
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
             ]);
     }
 

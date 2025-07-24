@@ -21,7 +21,7 @@ class FinanceLevel extends Widget
                 'level' => $level->value,
                 'label' => $level->getLabel(),
                 'icon' => $level->getIcon(),
-                'current' => $level === $currentLevel,
+                'current' => $level->value <= $currentLevel->value,
             ])
             ->values()
             ->all();

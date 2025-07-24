@@ -38,7 +38,7 @@ class CurrentSalaryResource extends Resource
                     ->label('Income Source')
                     ->placeholder('e.g. Company name, Freelance')
                     ->maxLength(255)
-                    ->columnSpan(2),
+                    ->columnSpanFull(),
 
                 Select::make('account_id')
                     ->options(Account::where('user_id', Auth::id())->pluck('name', 'id'))
