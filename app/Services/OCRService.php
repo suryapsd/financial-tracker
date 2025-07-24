@@ -39,11 +39,21 @@ class OCRService
     {
         $preprocessedPath = $this->preprocessImage($imagePath);
 
-        return (new TesseractOCR($preprocessedPath))
-            ->lang('eng+ind')
-            ->psm(6)
-            ->oem(1)
-            ->tessdataDir('C:\Program Files\Tesseract-OCR\tessdata')
-            ->run();
+        if (env('APP_ENV') == 'local') {
+            return (new TesseractOCR($preprocessedPath))
+                ->lang('eng+ind')
+                ->psm(6)
+                ->oem(1)
+                ->tessdataDir('C:\Program Files\Tesseract-OCR\tessdata')
+                ->run();
+        } else {
+            return (new TesseractOCR($preprocessedPath))
+                ->executable('/usr/bin/tesseract')
+                ->lang('eng+ind')
+                ->psm(6)
+                ->oem(1)
+                ->tessdataDir('/usr/share/tesseract-ocr/4.00/tessdata')
+                ->run();
+        }
     }
 }
