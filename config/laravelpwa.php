@@ -7,7 +7,7 @@ return [
         'short_name' => 'FinCheck',
         'start_url' => '/',
         'background_color' => '#ffffff',
-        'theme_color' => '#000000',
+        'theme_color' => '#22c55e',
         'display' => 'standalone',
         'orientation' => 'any',
         'status_bar' => 'black',
