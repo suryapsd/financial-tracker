@@ -43,7 +43,7 @@ class IncomeResource extends Resource
                     ->placeholder('Select an category'),
 
                 Select::make('account_id')
-                    ->options(Account::all()->pluck('name', 'id'))
+                    ->options(Account::where('is_active')->pluck('name', 'id'))
                     ->required()
                     ->label('Account')
                     ->searchable()
@@ -67,7 +67,12 @@ class IncomeResource extends Resource
 
                 DatePicker::make('received_at')
                     ->required()
-                    ->label('Received Date'),
+                    ->label('Received Date')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->default(\Carbon\Carbon::today())
+                    ->closeOnDateSelection(),
 
                 Textarea::make('description')
                     ->columnSpanFull()
@@ -82,7 +87,9 @@ class IncomeResource extends Resource
                 TextColumn::make('account.name')
                     ->label('Account'),
                 TextColumn::make('category.name')
-                    ->label('Category'),
+                    ->label('Category')
+                    ->searchable()
+                    ->color(fn($record) => $record->category?->color),
                 TextColumn::make('source')
                     ->label('Source')
                     ->searchable(),
@@ -115,8 +122,33 @@ class IncomeResource extends Resource
             ])
             ->defaultSort('received_at', 'desc')
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->mutateFormDataUsing(function (array $data, $record): array {
+                        // Simpan amount lama untuk perhitungan selisih
+                        $record->old_amount = $record->amount;
+                        return $data;
+                    })
+                    ->after(function (Tables\Actions\EditAction $action, $record) {
+                        $account = $record->account;
+
+                        if ($account && isset($record->old_amount)) {
+                            $difference = $record->amount - $record->old_amount;
+
+                            $account->update([
+                                'balance' => $account->balance + $difference,
+                            ]);
+                        }
+                    }),
+                Tables\Actions\DeleteAction::make()
+                    ->before(function ($record) {
+                        $account = $record->account;
+
+                        if ($account) {
+                            $account->update([
+                                'balance' => $account->balance - $record->amount,
+                            ]);
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

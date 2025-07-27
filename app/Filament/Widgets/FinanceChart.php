@@ -2,6 +2,8 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\FinancialReport;
+use Illuminate\Support\Facades\Auth;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
 class FinanceChart extends ApexChartWidget
@@ -21,7 +23,7 @@ class FinanceChart extends ApexChartWidget
      * @var string|null
      */
     protected static ?string $heading = 'Pergerakan Kekayaan Bersih';
-    protected static ?string $subheading = 'This is a subheading';
+    protected static ?string $subheading = 'Lihat tren kenaikan atau penurunan kekayaan bersih Anda setiap bulan.';
 
     /**
      * Chart options (series, labels, types, size, animations...)
@@ -32,39 +34,52 @@ class FinanceChart extends ApexChartWidget
 
     protected function getOptions(): array
     {
+        $user = Auth::user();
+        $year = request('year') ?? now()->year;
+
+        $reports = FinancialReport::where('user_id', $user->id)
+            ->where('year', $year)
+            ->orderBy('month')
+            ->get();
+        // for ($month = 1; $month <= 12; $month++) {
+        //     $user->checkFinancialReports($month, $year);
+        // }
+        $months = [];
+        $incomes = [];
+        $expenses = [];
+
+        foreach ($reports as $report) {
+            $months[] = date('M', mktime(0, 0, 0, $report->month, 1)); // Nama bulan singkat (Jan, Feb, dst.)
+            $incomes[] = (float) $report->total_income;
+            $expenses[] = (float) $report->total_expense;
+        }
+
         return [
             'chart' => [
                 'type' => 'line',
-                'height' => 300,
+                'height' => 350,
                 'toolbar' => [
                     'show' => false,
                 ],
             ],
+
+            'legend' => [
+                'show' => false,
+            ],
             'series' => [
                 [
-                    'name' => 'FinanceChart',
-                    'data' => [2, 4, 6, 10, 14, 7, 2, 9, 10, 15, 13, 18],
+                    'name' => 'Pemasukan',
+                    'data' => $incomes,
+                ],
+                [
+                    'name' => 'Pengeluaran',
+                    'data' => $expenses,
                 ],
             ],
             'xaxis' => [
-                'categories' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                'labels' => [
-                    'style' => [
-                        'fontFamily' => 'inherit',
-                    ],
-                ],
+                'categories' => $months,
             ],
-            'yaxis' => [
-                'labels' => [
-                    'style' => [
-                        'fontFamily' => 'inherit',
-                    ],
-                ],
-            ],
-            'colors' => ['#16a34a'],
-            'stroke' => [
-                'curve' => 'smooth',
-            ],
+            'colors' => ['#00E396', '#FF4560'],
         ];
     }
 }

@@ -83,7 +83,13 @@ class AccountResource extends Resource
                     ->color(fn($state) => AccountType::tryFrom($state)?->getColor())
                     ->icon(fn($state) => AccountType::tryFrom($state)?->getIcon())
                     ->formatStateUsing(fn($state) => AccountType::tryFrom($state)?->getLabel()),
-                TextColumn::make('balance')->money('IDR')->label('Saldo'),
+                TextColumn::make('balance')
+                    ->money('IDR')
+                    ->label('Saldo')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
                 ToggleColumn::make('is_primary')
                     ->label('Utama')
                     ->afterStateUpdated(function ($record, $state) {
@@ -92,7 +98,8 @@ class AccountResource extends Resource
                                 ->where('id', '!=', $record->id)
                                 ->update(['is_primary' => false]);
                         }
-                    })
+                    }),
+                ToggleColumn::make('is_active')
             ])
             ->filters([
                 //

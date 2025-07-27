@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Finances;
 
-use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Account;
@@ -13,7 +12,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Services\OCRService;
 use Filament\Resources\Resource;
-use App\Services\AIParserService;
+use App\Services\GeminiAIService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Grid;
@@ -76,7 +75,23 @@ class ExpenseResource extends Resource
                 TextColumn::make('account.name')
                     ->label('Account'),
                 TextColumn::make('category.name')
-                    ->label('Category'),
+                    ->label('Category')
+                    ->formatStateUsing(function ($state, $record) {
+                        $color = $record->category->color ?? '#999999';
+                        return "<span style='
+                            display: inline-flex;
+                            align-items: center;
+                            border-radius: 0.375rem;
+                            background-color: {$color}0D;
+                            color: {$color};
+                            filter: brightness(80%);
+                            padding: 0 0.5rem;
+                            font-size: 0.75rem;
+                            font-weight: 500;
+                            border: 1px solid {$color}33;
+                        '>{$state}</span>";
+                    })
+                    ->html(),
                 TextColumn::make('name')
                     ->label('Expense')
                     ->searchable(),
@@ -119,8 +134,34 @@ class ExpenseResource extends Resource
             ])
             ->defaultSort('expense_date', 'desc')
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->mutateFormDataUsing(function (array $data, $record): array {
+                        // Simpan amount lama untuk perhitungan selisih
+                        $record->old_amount = $record->amount;
+                        return $data;
+                    })
+                    ->after(function (Tables\Actions\EditAction $action, $record) {
+                        $account = $record->account;
+
+                        if ($account && isset($record->old_amount)) {
+                            $difference = $record->amount - $record->old_amount;
+
+                            $account->update([
+                                'balance' => $account->balance + $difference,
+                            ]);
+                        }
+                    }),
+
+                Tables\Actions\DeleteAction::make()
+                    ->before(function ($record) {
+                        $account = $record->account;
+
+                        if ($account) {
+                            $account->update([
+                                'balance' => $account->balance + $record->amount,
+                            ]);
+                        }
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -161,7 +202,7 @@ class ExpenseResource extends Resource
                 Select::make('account_id')
                     ->required()
                     ->label('Account')
-                    ->options(Account::pluck('name', 'id'))
+                    ->options(Account::where('is_active')->pluck('name', 'id'))
                     ->searchable()
                     ->placeholder('Select an account'),
 
@@ -183,7 +224,11 @@ class ExpenseResource extends Resource
                 DatePicker::make('expense_date')
                     ->required()
                     ->label('Expense Date')
-                    ->default(Carbon::today()),
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->default(\Carbon\Carbon::today())
+                    ->closeOnDateSelection(),
 
                 Select::make('frequency')
                     ->label('Frequency')
@@ -326,7 +371,7 @@ class ExpenseResource extends Resource
         $ocrText = app(\App\Services\OCRService::class)->extractTextFromImage($imagePath);
         $set('raw_text', $ocrText);
 
-        $parsedJson = app(\App\Services\AIParserService::class)->parseReceiptToJson($ocrText);
+        $parsedJson = app(\App\Services\GeminiAIService::class)->parseReceiptToJson($ocrText);
         $set('parsed_json', json_encode($parsedJson, JSON_PRETTY_PRINT));
 
         // Autofill logic

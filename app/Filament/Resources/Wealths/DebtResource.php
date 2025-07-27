@@ -63,8 +63,12 @@ class DebtResource extends Resource
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
                 DatePicker::make('due_date')
-                    ->required()
-                    ->label('Due Date'),
+                    ->label('Due Date')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->default(\Carbon\Carbon::today())
+                    ->closeOnDateSelection(),
             ]);
     }
 
@@ -73,8 +77,20 @@ class DebtResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('creditor')->label('Creditor')->searchable(),
-                TextColumn::make('category.name')->label('Category'),
-                TextColumn::make('amount')->money('IDR', true)->label('Amount'),
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->searchable()
+                    ->color(fn($record) => $record->category?->color),
+                TextColumn::make('amount')->money('IDR', true)->label('Amount')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
+                TextColumn::make('already_paid')->money('IDR', true)->label('Already Paid')->default(0)
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
                 TextColumn::make('monthly_payment')->money('IDR', true)->label('Monthly'),
                 TextColumn::make('due_date')->date()->label('Due Date'),
             ])
@@ -94,16 +110,25 @@ class DebtResource extends Resource
             ->emptyStateDescription('Once you write your first ' . static::getModelLabel() . ', it will appear here.');
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ManageDebts::route('/'),
-        ];
-    }
-
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
             ->where('user_id', Auth::id());
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\SavingsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListDebts::route('/'),
+            'create' => Pages\CreateDebt::route('/create'),
+            'edit' => Pages\EditDebt::route('/{record}/edit'),
+        ];
     }
 }

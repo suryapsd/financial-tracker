@@ -72,7 +72,12 @@ class AssetResource extends Resource
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
                 DatePicker::make('acquired_date')
-                    ->label('Acquired Date'),
+                    ->label('Acquired Date')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->default(\Carbon\Carbon::today())
+                    ->closeOnDateSelection(),
             ]);
     }
 
@@ -83,7 +88,11 @@ class AssetResource extends Resource
                 TextColumn::make('name')->label('Asset Name')->searchable(),
                 TextColumn::make('category')->label('Category'),
                 TextColumn::make('institution')->label('Institution'),
-                TextColumn::make('value')->money('IDR', true)->label('Value'),
+                TextColumn::make('value')->money('IDR', true)->label('Value')
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
                 TextColumn::make('acquired_date')->date()->label('Date'),
                 TextColumn::make('account.name')->label('Account'),
             ])

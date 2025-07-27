@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Plans;
+namespace App\Filament\Resources\Wealths;
 
 use Filament\Forms;
 use Filament\Tables;
@@ -15,18 +15,18 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\CreateAction;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\Plans\BudgetPlanResource\Pages;
-use App\Filament\Resources\Plans\BudgetPlanResource\RelationManagers;
+use App\Filament\Resources\Wealths\BudgetPlanResource\Pages;
+use App\Filament\Resources\Wealths\BudgetPlanResource\RelationManagers;
 
 class BudgetPlanResource extends Resource
 {
     protected static ?string $model = BudgetPlan::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-adjustments-vertical';
-    protected static ?string $navigationGroup = 'Plans';
+    protected static ?string $navigationGroup = 'Wealths';
 
     public static function form(Form $form): Form
     {
@@ -34,16 +34,18 @@ class BudgetPlanResource extends Resource
             ->schema([
                 Hidden::make('user_id')->default(Auth::id()),
 
-                Select::make('category_id')
-                    ->label('Category')
-                    ->options(Category::where('type', '!=', 'income')->pluck('name', 'id'))
-                    ->searchable()
-                    ->placeholder('Select a category'),
-
                 TextInput::make('title')
                     ->label('Plan name')
                     ->placeholder('Enter the plan name')
-                    ->required(),
+                    ->required()
+                    ->columnSpanFull(),
+
+                Select::make('category_id')
+                    ->label('Category')
+                    ->options(Category::where('type', 'plan')->pluck('name', 'id'))
+                    ->searchable()
+                    ->required()
+                    ->placeholder('Select a category'),
 
                 TextInput::make('planned_amount')
                     ->label('Planned Amount')
@@ -56,39 +58,19 @@ class BudgetPlanResource extends Resource
 
                 TextInput::make('actual_amount')
                     ->label('Actual Amount')
-                    ->placeholder('e.g. 1,250,000')
                     ->prefix('Rp.')
-                    ->required()
-                    ->numeric()
-                    ->rules(['numeric', 'min:0'])
+                    ->disabled()
+                    ->default(0)
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
-                Select::make('month')
-                    ->label('Month')
-                    ->required()
-                    ->options([
-                        1 => 'January',
-                        2 => 'February',
-                        3 => 'March',
-                        4 => 'April',
-                        5 => 'May',
-                        6 => 'June',
-                        7 => 'July',
-                        8 => 'August',
-                        9 => 'September',
-                        10 => 'October',
-                        11 => 'November',
-                        12 => 'December',
-                    ])
-                    ->placeholder('Select a month'),
-
-                TextInput::make('year')
-                    ->label('Year')
-                    ->placeholder('e.g. 2025')
-                    ->required()
-                    ->numeric()
-                    ->minValue(2000)
-                    ->maxValue(2100),
+                DatePicker::make('target_date')
+                    ->label('Target Date')
+                    ->placeholder('e.g. 2026-12-31')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->default(\Carbon\Carbon::today())
+                    ->closeOnDateSelection(),
 
                 Textarea::make('description')
                     ->label('Description')
@@ -101,12 +83,22 @@ class BudgetPlanResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('category.name')->label('Category')->searchable(),
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->searchable()
+                    ->color(fn($record) => $record->category?->color),
                 TextColumn::make('title')->label('Plan Name')->searchable(),
-                TextColumn::make('planned_amount')->label('Planned')->money('IDR', true),
-                TextColumn::make('actual_amount')->label('Actual')->money('IDR', true),
-                TextColumn::make('month')->label('Month'),
-                TextColumn::make('year')->label('Year'),
+                TextColumn::make('planned_amount')->label('Planned')->money('IDR', true)
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
+                TextColumn::make('actual_amount')->label('Actual')->money('IDR', true)->default(0)
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
+                TextColumn::make('target_date')->label('Target Date')->date(),
                 TextColumn::make('created_at')->label('Created At')->date('d M Y'),
             ])
             ->filters([
@@ -125,16 +117,25 @@ class BudgetPlanResource extends Resource
             ->emptyStateDescription('Once you write your first ' . static::getModelLabel() . ', it will appear here.');
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ManageBudgetPlans::route('/'),
-        ];
-    }
-
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
             ->where('user_id', Auth::id());
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\SavingsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListBudgetPlans::route('/'),
+            'create' => Pages\CreateBudgetPlan::route('/create'),
+            'edit' => Pages\EditBudgetPlan::route('/{record}/edit'),
+        ];
     }
 }

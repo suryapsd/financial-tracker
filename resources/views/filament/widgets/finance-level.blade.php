@@ -40,12 +40,6 @@
       </table>
     </div>
 
-    {{-- <x-filament::card>
-      <h2>Dana saat ini; </h2>
-      <div class="text-sm">Dana saat ini: <span class="font-semibold">@money($this->getData()['sisaDana'])</span></div>
-      <div class="text-sm">Pengeluaran per bulan: <span class="font-semibold">@money($this->getData()['perBulan'])</span></div>
-      <div class="text-sm">Cukup untuk <span class="font-semibold">{{ $this->getData()['bulan'] }} bulan</span> ke depan</div>
-      <div class="text-sm">Bulan bisa hidup tanpa gaji: <span class="font-semibold">{{ number_format($this->getData()['bulanTanpaGaji'], 2) }}</span> bulan</div>
-    </x-filament::card> --}}
+    <div class="text-sm mt-5 mb-4">Perlu menabung <span class="font-semibold">{{ number_format($this->getData()['naikLevel'], 2) }}</span> lagi untuk naik level</div>
   </x-filament::card>
 </x-filament::widget>

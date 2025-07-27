@@ -27,6 +27,10 @@ class SavingResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cloud';
     protected static ?string $navigationGroup = 'Wealths';
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     public static function form(Form $form): Form
     {
@@ -58,7 +62,12 @@ class SavingResource extends Resource
 
                 DatePicker::make('saved_date')
                     ->label('Saved Date')
-                    ->required(),
+                    ->required()
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->default(\Carbon\Carbon::today())
+                    ->closeOnDateSelection(),
 
                 Textarea::make('description')
                     ->label('Description')

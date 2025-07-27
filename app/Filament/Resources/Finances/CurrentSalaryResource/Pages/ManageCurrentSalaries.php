@@ -14,21 +14,8 @@ class ManageCurrentSalaries extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->modalWidth('2xl'),
         ];
-    }
-
-    public function toggleStatus($id)
-    {
-        $record = \App\Models\CurrentSalary::findOrFail($id);
-
-        $record->update([
-            'is_active' => !$record->is_active,
-        ]);
-
-        Notification::make()
-            ->title('Status berhasil diperbarui.')
-            ->success()
-            ->send();
     }
 }

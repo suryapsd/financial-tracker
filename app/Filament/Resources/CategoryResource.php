@@ -14,9 +14,11 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\ColorPicker;
 use App\Filament\Resources\CategoryResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\CategoryResource\RelationManagers;
@@ -34,12 +36,16 @@ class CategoryResource extends Resource
             ->schema([
                 TextInput::make('name')
                     ->label('Category Name')
-                    ->required(),
+                    ->required()
+                    ->columnSpanFull(),
                 Select::make('type')
                     ->label('Category Type')
                     ->required()
                     ->options(EnumHelper::getEnum('categories', 'type'))
                     ->searchable(),
+                ColorPicker::make('color')
+                    ->required()
+                    ->regex('/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})\b$/'),
                 Textarea::make('description')
                     ->columnSpan(2),
             ]);
@@ -58,6 +64,7 @@ class CategoryResource extends Resource
                     ->color(fn($state) => CategoryType::tryFrom($state)?->getColor())
                     ->icon(fn($state) => CategoryType::tryFrom($state)?->getIcon())
                     ->formatStateUsing(fn($state) => CategoryType::tryFrom($state)?->getLabel()),
+                ColorColumn::make('color'),
                 TextColumn::make('description')
                     ->searchable()
                     ->wrap(),
@@ -67,8 +74,10 @@ class CategoryResource extends Resource
                     ->options(CategoryType::class)
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn($record) => !in_array($record->id, [38, 39])),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn($record) => !in_array($record->id, [38, 39])),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

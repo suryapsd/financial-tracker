@@ -4,16 +4,16 @@ namespace App\Filament\Resources\Wealths\EmergencyFundResource\Pages;
 
 use App\Filament\Resources\Wealths\EmergencyFundResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\EditRecord;
 
-class ManageEmergencyFunds extends ManageRecords
+class EditEmergencyFund extends EditRecord
 {
     protected static string $resource = EmergencyFundResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\DeleteAction::make(),
         ];
     }
 }

@@ -20,4 +20,9 @@ class Debt extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function savings()
+    {
+        return $this->hasMany(Saving::class, 'goal_id')->where('type', 'debt');
+    }
 }

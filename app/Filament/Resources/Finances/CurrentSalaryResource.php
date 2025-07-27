@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Checkbox;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
@@ -56,7 +57,12 @@ class CurrentSalaryResource extends Resource
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
                 DatePicker::make('effective_date')
-                    ->label('Effective Date'),
+                    ->label('Effective Date')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->format('Y-m-d')
+                    ->default(\Carbon\Carbon::today())
+                    ->closeOnDateSelection(),
 
                 Select::make('frequency')
                     ->label('Frequency')
@@ -68,6 +74,10 @@ class CurrentSalaryResource extends Resource
                         'monthly' => 'Monthly',
                         'yearly' => 'Yearly',
                     ]),
+
+                Checkbox::make('is_auto_create_income')
+                    ->label('Aktifkan otomatisasi pencatatan income sesuai frekuensi')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -80,13 +90,15 @@ class CurrentSalaryResource extends Resource
                 TextColumn::make('income_source')->label('Source')->searchable(),
                 TextColumn::make('effective_date')->date()->label('Date'),
                 ToggleColumn::make('is_active'),
+                ToggleColumn::make('is_auto_create_income'),
             ])
             ->filters([
                 //
             ])
             ->defaultSort('effective_date', 'desc')
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->modalWidth('2xl'),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

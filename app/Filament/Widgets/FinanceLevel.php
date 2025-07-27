@@ -2,8 +2,12 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\User;
+use App\Models\Income;
+use App\Models\Expense;
 use Filament\Widgets\Widget;
 use App\Enums\FinancialLevel;
+use Illuminate\Support\Facades\Auth;
 
 class FinanceLevel extends Widget
 {
@@ -13,7 +17,9 @@ class FinanceLevel extends Widget
 
     public function getData(): array
     {
-        $currentLevel = FinancialLevel::from(1);;
+        $user = Auth::user();
+        $getLevel = $user->determineFinancialLevel();
+        $currentLevel = FinancialLevel::from($getLevel);
 
         $levels = collect(FinancialLevel::cases())
             // ->sortByAsc(fn($level) => $level->value)
@@ -26,15 +32,21 @@ class FinanceLevel extends Widget
             ->values()
             ->all();
 
-        $sisaDana = 5675269623;
-        $perBulan = 10000000;
+        $totalAssets = $user->assets->sum('value');
+        $totalDebts = $user->debts->sum('amount');
+        $netWorth = $totalAssets - $totalDebts;
+
+        $sisaDana = $netWorth;
+        $incomePasts = $user->incomes()->whereMonth('received_at', now()->subMonth()->month)->sum('amount');
+        $expensePasts = $user->expenses()->whereMonth('expense_date', now()->subMonth()->month)->sum('amount');
 
         return [
+            'naikLevel' => $netWorth,
             'levels' => $levels,
             'sisaDana' => $sisaDana,
-            'perBulan' => $perBulan,
-            'bulan' => ceil($sisaDana / $perBulan),
-            'bulanTanpaGaji' => round($sisaDana / 1297071582, 2),
+            'perBulan' => $incomePasts,
+            'bulan' => $incomePasts > 0 ? ceil($sisaDana / $incomePasts) : 0,
+            'bulanTanpaGaji' => $expensePasts > 0 ? round($sisaDana / $expensePasts, 2) : 0,
         ];
     }
 }

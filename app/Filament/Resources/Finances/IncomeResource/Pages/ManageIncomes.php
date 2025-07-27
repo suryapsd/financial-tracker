@@ -14,7 +14,16 @@ class ManageIncomes extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->after(function (Actions\CreateAction $action, $record) {
+                    $account = $record->account;
+
+                    if ($account) {
+                        $account->update([
+                            'balance' => $account->balance + $record->amount,
+                        ]);
+                    }
+                }),
         ];
     }
 

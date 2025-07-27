@@ -10,4 +10,8 @@ class FinancialReport extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
+    protected $casts = [
+        'summary' => 'array',
+        'note' => 'array',
+    ];
 }

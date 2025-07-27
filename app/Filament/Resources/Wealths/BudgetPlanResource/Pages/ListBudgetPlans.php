@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\Plans\BudgetPlanResource\Pages;
+namespace App\Filament\Resources\Wealths\BudgetPlanResource\Pages;
 
-use App\Filament\Resources\Plans\BudgetPlanResource;
+use App\Filament\Resources\Wealths\BudgetPlanResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
 
-class ManageBudgetPlans extends ManageRecords
+class ListBudgetPlans extends ListRecords
 {
     protected static string $resource = BudgetPlanResource::class;
 

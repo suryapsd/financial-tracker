@@ -28,6 +28,12 @@ class DreamResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-sparkles';
     protected static ?string $navigationGroup = 'Plans';
+    protected static ?string $navigationLabel = 'Dream Goals';
+    protected static ?string $modelLabel = 'dream goal';
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     public static function form(Form $form): Form
     {

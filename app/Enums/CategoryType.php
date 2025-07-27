@@ -13,7 +13,7 @@ enum CategoryType: string implements HasColor, HasIcon, HasLabel
     case Asset = 'asset';
     case Debt = 'debt';
     case Emergency = 'emergency';
-    case Dream = 'dream';
+    case Plan = 'plan';
 
     public function getLabel(): string
     {
@@ -23,7 +23,7 @@ enum CategoryType: string implements HasColor, HasIcon, HasLabel
             self::Asset => 'Asset',
             self::Debt => 'Debt',
             self::Emergency => 'Emergency',
-            self::Dream => 'Dream Goal',
+            self::Plan => 'Budget Plan',
         };
     }
 
@@ -35,7 +35,7 @@ enum CategoryType: string implements HasColor, HasIcon, HasLabel
             self::Asset => 'info',
             self::Debt => 'warning',
             self::Emergency => 'gray',
-            self::Dream => 'primary',
+            self::Plan => 'primary',
         };
     }
 
@@ -47,7 +47,7 @@ enum CategoryType: string implements HasColor, HasIcon, HasLabel
             self::Asset => 'heroicon-o-building-library',
             self::Debt => 'heroicon-o-credit-card',
             self::Emergency => 'heroicon-o-exclamation-triangle',
-            self::Dream => 'heroicon-o-star',
+            self::Plan => 'heroicon-o-star',
         };
     }
 }

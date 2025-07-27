@@ -55,10 +55,8 @@ class EmergencyFundResource extends Resource
 
                 TextInput::make('current_amount')
                     ->label('Current Amount')
-                    ->placeholder('Enter current amount')
-                    ->required()
-                    ->numeric()
-                    ->rules(['numeric', 'min:0'])
+                    ->disabled()
+                    ->default(0)
                     ->prefix('Rp.')
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
@@ -74,9 +72,20 @@ class EmergencyFundResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('category.name')->label('Category'),
-                TextColumn::make('target_amount')->label('Target')->money('IDR', true),
-                TextColumn::make('current_amount')->label('Current')->money('IDR', true),
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->searchable()
+                    ->color(fn($record) => $record->category?->color),
+                TextColumn::make('target_amount')->label('Target')->money('IDR', true)
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
+                TextColumn::make('current_amount')->label('Current')->money('IDR', true)->default(0)
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('IDR', true),
+                    ]),
                 TextColumn::make('description')->label('Description')->limit(50),
                 TextColumn::make('created_at')->date()->label('Created At'),
             ])
@@ -96,16 +105,25 @@ class EmergencyFundResource extends Resource
             ->emptyStateDescription('Once you write your first ' . static::getModelLabel() . ', it will appear here.');
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ManageEmergencyFunds::route('/'),
-        ];
-    }
-
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
             ->where('user_id', Auth::id());
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\SavingsRelationManager::class
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListEmergencyFunds::route('/'),
+            'create' => Pages\CreateEmergencyFund::route('/create'),
+            'edit' => Pages\EditEmergencyFund::route('/{record}/edit'),
+        ];
     }
 }
