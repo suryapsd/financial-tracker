@@ -359,7 +359,10 @@ class ExpenseResource extends Resource
                             ->disabled()
                             ->prefix('Rp.')
                             ->rules(['numeric', 'min:0'])
-                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2)
+                            ->afterStateHydrated(function (\Filament\Forms\Set $set, callable $get) {
+                                $set('subtotal', ($get('quantity') ?? 0) * ($get('unit_price') ?? 0));
+                            }),
                     ])
                     ->defaultItems(0)
                     ->columns(4),
