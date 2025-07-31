@@ -43,7 +43,7 @@ class IncomeResource extends Resource
                     ->placeholder('Select an category'),
 
                 Select::make('account_id')
-                    ->options(Account::where('is_active')->pluck('name', 'id'))
+                    ->options(Account::where('user_id', Auth::id())->where('is_active', 1)->pluck('name', 'id'))
                     ->required()
                     ->label('Account')
                     ->searchable()
