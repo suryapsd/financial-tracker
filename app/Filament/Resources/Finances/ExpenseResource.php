@@ -202,7 +202,7 @@ class ExpenseResource extends Resource
                 Select::make('account_id')
                     ->required()
                     ->label('Account')
-                    ->options(Account::where('is_active')->pluck('name', 'id'))
+                    ->options(Account::where('user_id', Auth::id())->where('is_active', 1)->pluck('name', 'id'))
                     ->searchable()
                     ->placeholder('Select an account'),
 
