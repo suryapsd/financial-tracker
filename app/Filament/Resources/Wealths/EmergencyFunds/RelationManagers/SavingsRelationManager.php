@@ -40,13 +40,7 @@ class SavingsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('emergencyFund')
             ->columns([
-                TextColumn::make('saved_date')->label('Saved Date')->date(),
-                TextColumn::make('amount')->label('Amount')->money('IDR', true)
-                    ->summarize([
-                        Sum::make()
-                            ->money('IDR', true),
-                    ]),
-                TextColumn::make('description')->label('Notes')->limit(40),
+                ...SavingResource::columnSaving()
             ])
             ->filters([
                 //
