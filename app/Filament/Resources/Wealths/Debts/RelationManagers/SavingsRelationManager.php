@@ -20,6 +20,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Actions\DissociateBulkAction;
 use Filament\Tables\Columns\Summarizers\Sum;
+use App\Filament\Resources\Wealths\SavingResource;
 use Filament\Resources\RelationManagers\RelationManager;
 
 class SavingsRelationManager extends RelationManager
@@ -30,29 +31,7 @@ class SavingsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                Hidden::make('user_id')->default(Auth::id()),
-                Hidden::make('type')->default('debt'),
-
-                DatePicker::make('saved_date')
-                    ->label('Saved Date')
-                    ->required()
-                    ->native(false)
-                    ->default(Carbon::today()),
-
-                TextInput::make('amount')
-                    ->label('Amount')
-                    ->required()
-                    ->numeric()
-                    ->rules(['numeric', 'min:0'])
-                    ->placeholder('Enter saved amount')
-                    ->prefix('Rp.')
-                    ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
-
-                Textarea::make('description')
-                    ->label('Description')
-                    ->placeholder('Optional notes')
-                    ->rows(3)
-                    ->columnSpanFull(),
+                ...SavingResource::formSaving('debt'),
             ]);
     }
 
@@ -61,13 +40,7 @@ class SavingsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('debt')
             ->columns([
-                TextColumn::make('saved_date')->label('Saved Date')->date(),
-                TextColumn::make('amount')->label('Amount')->money('IDR', true)
-                    ->summarize([
-                        Sum::make()
-                            ->money('IDR', true),
-                    ]),
-                TextColumn::make('description')->label('Notes')->limit(40),
+                ...SavingResource::columnSaving()
             ])
             ->filters([
                 //

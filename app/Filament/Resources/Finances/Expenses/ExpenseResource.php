@@ -217,7 +217,6 @@ class ExpenseResource extends Resource
                     ->label('Amount')
                     ->placeholder('Enter the total amount spent')
                     ->prefix('Rp.')
-                    ->numeric()
                     ->rules(['numeric', 'min:0'])
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
@@ -333,7 +332,6 @@ class ExpenseResource extends Resource
 
                         TextInput::make('quantity')
                             ->label('Quantity')
-                            ->numeric()
                             ->required()
                             ->reactive()
                             ->default(1)
@@ -343,7 +341,6 @@ class ExpenseResource extends Resource
 
                         TextInput::make('unit_price')
                             ->label('Unit Price')
-                            ->numeric()
                             ->required()
                             ->reactive()
                             ->prefix('Rp.')
@@ -355,7 +352,6 @@ class ExpenseResource extends Resource
 
                         TextInput::make('subtotal')
                             ->label('Subtotal')
-                            ->numeric()
                             ->disabled()
                             ->prefix('Rp.')
                             ->rules(['numeric', 'min:0'])

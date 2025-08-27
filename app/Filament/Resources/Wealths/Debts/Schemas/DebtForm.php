@@ -36,7 +36,6 @@ class DebtForm
                     ->label('Debt Amount')
                     ->placeholder('Enter total debt amount')
                     ->prefix('Rp.')
-                    ->numeric()
                     ->rules(['numeric', 'min:0'])
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
@@ -44,7 +43,6 @@ class DebtForm
                     ->label('Monthly Payment')
                     ->placeholder('Optional monthly payment')
                     ->prefix('Rp.')
-                    ->numeric()
                     ->rules(['nullable', 'numeric', 'min:0'])
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 

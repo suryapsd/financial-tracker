@@ -45,7 +45,7 @@ class AssetResource extends Resource
                     ->placeholder('Select an category'),
 
                 Select::make('account_id')
-                    ->options(Account::all()->pluck('name', 'id'))
+                    ->options(Account::where('user_id', Auth::id())->where('is_active', 1)->pluck('name', 'id'))
                     ->label('Account')
                     ->searchable()
                     ->placeholder('Select an account'),
@@ -53,13 +53,7 @@ class AssetResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->label('Asset Name')
-                    ->placeholder('Enter asset name')
-                    ->columnSpanFull(),
-
-                TextInput::make('category')
-                    ->required()
-                    ->label('Category')
-                    ->placeholder('Enter asset category'),
+                    ->placeholder('Enter asset name'),
 
                 TextInput::make('institution')
                     ->label('Institution')
@@ -71,7 +65,6 @@ class AssetResource extends Resource
                     ->label('Asset Value')
                     ->placeholder('Enter the asset value')
                     ->prefix('Rp.')
-                    ->numeric()
                     ->rules(['numeric', 'min:0'])
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
@@ -90,7 +83,7 @@ class AssetResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->label('Asset Name')->searchable(),
-                TextColumn::make('category')->label('Category'),
+                TextColumn::make('category.name')->label('Category'),
                 TextColumn::make('institution')->label('Institution'),
                 TextColumn::make('value')->money('IDR', true)->label('Value')
                     ->summarize([

@@ -63,7 +63,6 @@ class IncomeResource extends Resource
                     ->required()
                     ->label('Amount')
                     ->placeholder('Enter the amount')
-                    ->numeric()
                     ->rules(['numeric', 'min:0'])
                     ->prefix('Rp.')
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),

@@ -3,13 +3,16 @@
 namespace App\Filament\Resources\Finances\Accounts;
 
 use BackedEnum;
+use App\Models\User;
 use App\Models\Account;
 use App\Enums\AccountType;
 use Filament\Tables\Table;
+use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
 use Filament\Actions\DeleteAction;
+use Illuminate\Support\Facades\DB;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\BulkActionGroup;
@@ -19,6 +22,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Checkbox;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use App\Filament\Resources\Finances\Accounts\Pages\ManageAccounts;
@@ -103,6 +107,53 @@ class AccountResource extends Resource
                 //
             ])
             ->recordActions([
+                Action::make('transferFunds')
+                    ->label('Transfer Funds')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('success')
+                    ->requiresConfirmation() // 🔹 Add confirmation dialog
+                    ->modalHeading('Confirm Transfer')
+                    ->modalSubheading('Are you sure you want to transfer these funds?')
+                    ->modalButton('Yes, Transfer')
+                    ->schema([
+                        Select::make('account_id')
+                            ->options(Account::where('user_id', Auth::id())->where('is_active', 1)->pluck('name', 'id'))
+                            ->required()
+                            ->label('Account')
+                            ->searchable()
+                            ->placeholder('Select an account'),
+                        TextInput::make('amount')
+                            ->required()
+                            ->label('Amount')
+                            ->placeholder('Enter the amount')
+                            ->rules(['numeric', 'min:0'])
+                            ->prefix('Rp.')
+                            ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
+                    ])
+                    ->action(function (array $data, $record) {
+                        // simple validation
+                        if ($data['amount'] <= 0) {
+                            Notification::make()
+                                ->danger()
+                                ->title('Transfer failed')
+                                ->body('Invalid amount.')
+                                ->send();
+                            return;
+                        }
+
+                        // transfer logic
+                        DB::transaction(function () use ($record, $data) {
+                            $record->decrement('balance', $data['amount']);
+                            Account::find($data['account_id'])->increment('balance', $data['amount']);
+                        });
+
+                        Notification::make()
+                            ->success()
+                            ->title('Transfer successful')
+                            ->body('Funds have been transferred.')
+                            ->send();
+                    }),
+
                 EditAction::make()
                     ->modalWidth('2xl')
                     ->mutateDataUsing(function (array $data): array {

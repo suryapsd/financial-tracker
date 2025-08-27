@@ -53,7 +53,6 @@ class CurrentSalaryResource extends Resource
                     ->label('Salary Amount')
                     ->placeholder('Enter salary amount')
                     ->required()
-                    ->numeric()
                     ->rules(['numeric', 'min:0'])
                     ->prefix('Rp.')
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),

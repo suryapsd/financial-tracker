@@ -33,7 +33,6 @@ class BudgetPlanForm
                     ->label('Target Amount')
                     ->placeholder('Enter target amount')
                     ->required()
-                    ->numeric()
                     ->rules(['numeric', 'min:0'])
                     ->prefix('Rp.')
                     ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),

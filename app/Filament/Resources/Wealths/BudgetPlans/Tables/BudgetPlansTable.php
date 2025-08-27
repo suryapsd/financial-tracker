@@ -19,12 +19,12 @@ class BudgetPlansTable
                     ->label('Category')
                     ->searchable()
                     ->color(fn($record) => $record->category?->color),
-                TextColumn::make('target_amount')->label('Target')->money('IDR', true)
+                TextColumn::make('planned_amount')->label('Target')->money('IDR', true)
                     ->summarize([
                         Sum::make()
                             ->money('IDR', true),
                     ]),
-                TextColumn::make('current_amount')->label('Current')->money('IDR', true)->default(0)
+                TextColumn::make('actual_amount')->label('Current')->money('IDR', true)->default(0)
                     ->summarize([
                         Sum::make()
                             ->money('IDR', true),
