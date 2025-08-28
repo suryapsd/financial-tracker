@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use Filament\Support\RawJs;
 use App\Models\FinancialReport;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
@@ -82,5 +83,21 @@ class FinanceChart extends ApexChartWidget
             ],
             'colors' => ['#00E396', '#FF4560'],
         ];
+    }
+
+    protected function extraJsOptions(): ?RawJs
+    {
+        return RawJs::make(<<<'JS'
+        {
+            yaxis: {
+                labels: {
+                    formatter: function (val, index) {
+                        return parseFloat(val).toLocaleString('id-ID')
+                    }
+                }
+            },
+            
+        }
+        JS);
     }
 }

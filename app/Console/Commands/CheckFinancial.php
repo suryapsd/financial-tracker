@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
+use App\Jobs\GenerateFinancialReportJob;
 
 class CheckFinancial extends Command
 {
@@ -28,12 +29,18 @@ class CheckFinancial extends Command
     {
         $users = User::all();
         $year = now()->year;
+        $delaySeconds = 0;
+
         foreach ($users as $user) {
             for ($month = 1; $month <= 12; $month++) {
-                $user->checkFinancialReports($month, $year);
+                GenerateFinancialReportJob::dispatch($user, $month, $year)
+                    ->delay(now()->addSeconds($delaySeconds));
+                $delaySeconds += 20;
             }
-            $this->info("generate financial report for {$user->name}");
+
+            $this->info("Queued financial reports for {$user->name}");
         }
+
         return Command::SUCCESS;
     }
 }
