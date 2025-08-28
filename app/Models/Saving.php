@@ -16,8 +16,8 @@ class Saving extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function goal()
+    public function account()
     {
-        return $this->belongsTo(FinancialGoal::class, 'goal_id');
+        return $this->belongsTo(Account::class);
     }
 }

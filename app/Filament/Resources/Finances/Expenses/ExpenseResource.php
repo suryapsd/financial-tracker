@@ -195,7 +195,7 @@ class ExpenseResource extends Resource
                 Select::make('category_id')
                     ->required()
                     ->label('Category')
-                    ->options(Category::where('type', 'expense')->pluck('name', 'id'))
+                    ->options(Category::where('type', '!=', 'income')->pluck('name', 'id'))
                     ->searchable()
                     ->placeholder('Select a category'),
 

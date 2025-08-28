@@ -39,6 +39,8 @@ class SavingsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('emergencyFund')
+            ->heading('Emergency Fund History')
+            ->description('Manage and track your savings reserved for emergencies.')
             ->columns([
                 ...SavingResource::columnSaving()
             ])
@@ -47,6 +49,8 @@ class SavingsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->label('Emergency Fund')
+                    ->modalHeading('Create Emergency Fund History')
                     ->after(function (CreateAction $action, $record) {
                         // Update actual_amount setelah saving berhasil dibuat
                         $emergencyFund = $this->getOwnerRecord();
@@ -66,6 +70,7 @@ class SavingsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make()
+                    ->modalHeading('Edit Emergency Fund History')
                     ->after(function (EditAction $action, $record) {
                         // Update actual_amount setelah saving berhasil dibuat
                         $emergencyFund = $this->getOwnerRecord();

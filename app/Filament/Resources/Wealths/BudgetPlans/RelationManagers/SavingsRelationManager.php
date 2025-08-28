@@ -39,6 +39,8 @@ class SavingsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('budgetPlan')
+            ->heading('Budget Plan History')
+            ->description('Plan, allocate, and monitor your monthly budget effectively.')
             ->columns([
                 TextColumn::make('saved_date')->label('Saved Date')->date(),
                 TextColumn::make('amount')->label('Amount')->money('IDR', true)
@@ -53,6 +55,8 @@ class SavingsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->label('Budget Plan')
+                    ->modalHeading('Create Budget Plan History')
                     ->after(function (CreateAction $action, $record) {
                         // Update actual_amount setelah saving berhasil dibuat
                         $budgetPlan = $this->getOwnerRecord();
@@ -72,6 +76,7 @@ class SavingsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make()
+                    ->modalHeading('Edit Budget Plan History')
                     ->after(function (EditAction $action, $record) {
                         // Update actual_amount setelah saving berhasil dibuat
                         $budgetPlan = $this->getOwnerRecord();

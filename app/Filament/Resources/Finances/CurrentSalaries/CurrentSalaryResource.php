@@ -22,6 +22,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Finances\CurrentSalaries\Pages\ManageCurrentSalaries;
 
 class CurrentSalaryResource extends Resource
@@ -114,5 +115,11 @@ class CurrentSalaryResource extends Resource
         return [
             'index' => ManageCurrentSalaries::route('/'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('user_id', Auth::id());
     }
 }

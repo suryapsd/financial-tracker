@@ -41,6 +41,12 @@ class SavingResource
                 ->rules(['numeric', 'min:0'])
                 ->placeholder('Enter saved amount')
                 ->columnSpanFull()
+                ->default(function ($livewire) use ($type) {
+                    if ($type == 'debt') {
+                        $debt = $livewire->getOwnerRecord();
+                        return $debt->monthly_payment;
+                    }
+                })
                 ->prefix('Rp.')
                 ->currencyMask(thousandSeparator: ',', decimalSeparator: '.', precision: 2),
 
@@ -55,7 +61,7 @@ class SavingResource
     public static function columnSaving(): array
     {
         return [
-            TextColumn::make('saved_date')->label('Saved Date')->date(),
+            TextColumn::make('saved_date')->label('Date')->date(),
             TextColumn::make('account.name')->label('Account'),
             TextColumn::make('amount')->label('Amount')->money('IDR', true)
                 ->summarize([

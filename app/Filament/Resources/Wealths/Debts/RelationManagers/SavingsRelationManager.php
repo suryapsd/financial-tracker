@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Wealths\Debts\RelationManagers;
 
 use Carbon\Carbon;
+use App\Models\Expense;
 use Filament\Tables\Table;
 use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
@@ -39,6 +40,8 @@ class SavingsRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('debt')
+            ->heading('Debt Payment History')
+            ->description('Track and manage your debt repayments here.')
             ->columns([
                 ...SavingResource::columnSaving()
             ])
@@ -47,11 +50,27 @@ class SavingsRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->label('Debt Payment')
+                    ->modalHeading('Create Debt Payment History')
                     ->after(function (CreateAction $action, $record) {
                         // Update actual_amount setelah saving berhasil dibuat
                         $debt = $this->getOwnerRecord();
                         $debt->update([
                             'already_paid' => $debt->savings()->sum('amount'),
+                        ]);
+                        Expense::create([
+                            'user_id' => $debt->user_id,
+                            'account_id' => $record->account_id,
+                            'category_id' => $debt->category_id,
+                            'name' => 'Debt: ' . $debt->creditor,
+                            'amount' => $record->amount,
+                            'expense_date' => $record->saved_date,
+                            'frequency' => 'monthly',
+                            'description' => $debt->category->name
+                                . ' - ' . $debt->creditor
+                                . ' | Payment By: #' . $record->account->name
+                                . ' | Payment ID: #' . $record->id
+                                . ' | Date: ' . $record->created_at->format('d M Y'),
                         ]);
                     })
                     ->visible(function () {
@@ -66,6 +85,7 @@ class SavingsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make()
+                    ->modalHeading('Edit Debt Payment History')
                     ->after(function (EditAction $action, $record) {
                         // Update actual_amount setelah saving berhasil dibuat
                         $debt = $this->getOwnerRecord();

@@ -14,13 +14,13 @@
         </thead>
         <tbody>
           @php
-            $gradients = ['from-yellow-100/20 to-yellow-200/20', 'from-green-100/20 to-green-200/20', 'from-blue-100/20 to-blue-200/20', 'from-purple-100/20 to-purple-200/20', 'from-pink-100/20 to-pink-200/20', 'from-orange-100/20 to-orange-200/20'];
+            $gradients = array_reverse(['from-green-100/20 to-green-200/20', 'from-green-200/20 to-green-300/20', 'from-green-300/20 to-green-400/20', 'from-green-400/20 to-green-500/20', 'from-green-500/20 to-green-600/20', 'from-green-600/20 to-green-700/20', 'from-green-700/20 to-green-800/20']);
           @endphp
 
           @foreach (array_reverse($this->getData()['levels']) as $level)
             @php
               $gradient = $gradients[($loop->iteration - 1) % count($gradients)];
-              $rowClass = $level['current'] ? 'bg-primary-100 dark:bg-primary-900 font-semibold text-primary-700 dark:text-primary-200' : "bg-gradient-to-r {$gradient} text-gray-800 dark:text-gray-200";
+              $rowClass = "bg-gradient-to-r {$gradient} text-gray-800 dark:text-gray-200";
             @endphp
             <tr class="{{ $loop->last ? '' : 'border-b' }} {{ $rowClass }}">
               <td class="px-4 text-center">
