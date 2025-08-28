@@ -107,31 +107,27 @@ class User extends Authenticatable implements FilamentUser
         $debts = $this->debts()->sum('amount');
         $emergencyFundPlan = $this->emergencyFunds()->sum('target_amount');
         $emergencyFundCurrent = $this->emergencyFunds()->sum('current_amount');
-
         $retirementFundPlan = $this->budgetPlans()->where('category_id', 38)->sum('planned_amount');
         $retirementFundCurrent = $this->budgetPlans()->where('category_id', 38)->sum('actual_amount');
-
         $inheritancePlan = $this->budgetPlans()->where('category_id', 39)->sum('planned_amount');
         $inheritancePlanCurrent = $this->budgetPlans()->where('category_id', 39)->sum('actual_amount');
-
         $netWorth = $assets - $debts;
-
         $monthlyIncome = $this->incomes()->whereMonth('received_at', now()->subMonth()->month)->sum('amount') ?? 0;
-        $monthlyExpenses = $this->expenses()->whereMonth('expense_date', now()->subMonth()->month)->sum('amount');
+        $monthlyExpenses = $this->expenses()->whereMonth('expense_date', now()->subMonth()->month)->sum('amount') ?? 0;
 
-        // Level 0: 💥 Bankrupt (Assets < Debts)
-        if ($assets < $debts) {
-            return 0;
+        // Level 6: 🏆 Has Inheritance
+        if ($inheritancePlan > 0 && $inheritancePlanCurrent >= $inheritancePlan) {
+            return 6;
         }
 
-        // Level 1: 🔗 Trapped in Debt (Debts > Net Worth)
-        if ($debts > $netWorth) {
-            return 1;
+        // Level 5: 💰 Retirement Fund
+        if ($retirementFundPlan > 0 && $retirementFundCurrent >= $retirementFundPlan) {
+            return 5;
         }
 
-        // Level 2: 🎭 Looks Rich (Assets > 0 but < Debts)
-        if ($assets > 0 && $assets < $debts) {
-            return 2;
+        // Level 4: 🌸 Has Emergency Fund
+        if ($emergencyFundCurrent >= $emergencyFundPlan && $emergencyFundCurrent >= ($monthlyExpenses * 3)) {
+            return 4;
         }
 
         // Level 3: 💸 Paycheck to Paycheck
@@ -139,26 +135,23 @@ class User extends Authenticatable implements FilamentUser
             return 3;
         }
 
-        // Level 4: 🌸 Has Emergency Fund (≥ 3x pengeluaran)
-        if (
-            $emergencyFundCurrent >= $emergencyFundPlan &&
-            $emergencyFundCurrent >= ($monthlyExpenses * 3)
-        ) {
-            return 4;
+        // Level 2: 🎭 Looks Rich (Assets > 0 but < Debts)
+        if ($assets > 0 && $assets < $debts) {
+            return 2;
         }
 
-        // Level 5: 💰 Retirement Fund (actual > plan)
-        if ($retirementFundCurrent >= $retirementFundPlan && $retirementFundPlan > 0) {
-            return 5;
+        // Level 1: 🔗 Trapped in Debt (Debts > Net Worth, tapi belum bankrupt total)
+        if ($debts > $netWorth && $assets >= $debts) {
+            return 1;
         }
 
-        // Level 6: 🏆 Has Inheritance (actual > plan)
-        if ($inheritancePlanCurrent >= $inheritancePlan && $inheritancePlan > 0) {
-            return 6;
+        // Level 0: 💥 Bankrupt (Assets < Debts and Net Worth <= 0)
+        if ($assets <= 0 || $netWorth <= 0) {
+            return 0;
         }
 
-        // Default fallback
-        return 0;
+        // ✅ Default: sehat tapi belum masuk kategori di atas → minimal level 3
+        return 3;
     }
 
     public function financialReports()

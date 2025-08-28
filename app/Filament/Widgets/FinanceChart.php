@@ -42,9 +42,9 @@ class FinanceChart extends ApexChartWidget
             ->where('year', $year)
             ->orderBy('month')
             ->get();
-        // for ($month = 1; $month <= 12; $month++) {
-        //     $user->checkFinancialReports($month, $year);
-        // }
+        for ($month = 1; $month <= 12; $month++) {
+            $user->checkFinancialReports($month, $year);
+        }
         $months = [];
         $incomes = [];
         $expenses = [];
