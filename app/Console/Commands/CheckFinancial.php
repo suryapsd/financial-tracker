@@ -29,14 +29,18 @@ class CheckFinancial extends Command
     {
         $users = User::all();
         $year = now()->year;
+        $month = now()->month;
         $delaySeconds = 0;
 
         foreach ($users as $user) {
-            for ($month = 1; $month <= 12; $month++) {
-                GenerateFinancialReportJob::dispatch($user, $month, $year)
-                    ->delay(now()->addSeconds($delaySeconds));
-                $delaySeconds += 20;
-            }
+            // for ($month = 1; $month <= 12; $month++) {
+            //     GenerateFinancialReportJob::dispatch($user, $month, $year)
+            //         ->delay(now()->addSeconds($delaySeconds));
+            //     $delaySeconds += 30;
+            // }
+            GenerateFinancialReportJob::dispatch($user, $month, $year)
+                ->delay(now()->addSeconds($delaySeconds));
+            $delaySeconds += 30;
 
             $this->info("Queued financial reports for {$user->name}");
         }
